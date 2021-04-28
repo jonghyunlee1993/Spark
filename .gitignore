@@ -1,6 +1,11 @@
 data
+.metadata
+metastore
+metastore_db
+spark-warehouse
 *.csv
 *.json
+*.log
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,windows,linux,vscode,pycharm,jupyternotebooks
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,windows,linux,vscode,pycharm,jupyternotebooks
