@@ -67,18 +67,43 @@ spark.sql("SHOW TABLES").show
 
 spark.sql("""
    CREATE OR REPLACE VIEW view_stat_daily AS
-      SELECT rentDate as date, 
+      SELECT DAY(rentDate) as rentDate,
              rentStatId as statId,
              rentStatName as statName,
-             count(*) as count,
-             sum(useTime) as timeSum, avg(useTime) as timeAvg,
-             sum(useDistance) as distSum, avg(useDistance) as distAvg 
+             COUNT(*) as count,
+             SUM(useTime) as timeSum, 
+             AVG(useTime) as timeAvg,
+             SUM(useDistance) as distSum, 
+             AVG(useDistance) as distAvg 
       FROM AiRoBiC
-      GROUP BY rentDate, rentStatId, rentStatName
-      ORDER BY count DESC
+      GROUP BY rentDate, rentStatId, statName
 """)
 
-spark.sql("SELECT * FROM view_stat_daily").show()
+spark.sql("""
+  SELECT statId,
+    statName,
+    SUM(count) AS count,
+    ROUND(STDDEV(count), 2) AS countStd,
+    ROUND(STDDEV(timeSum), 2) AS timeStd,
+    ROUND(STDDEV(distSum), 2) AS distStd
+  FROM view_stat_daily
+  GROUP BY statId, statName
+  HAVING count > 2000
+  ORDER BY count DESC, timeStd DESC
+""").show(1000)
+
+spark.sql("""
+  SELECT rentDate,
+    statId,
+    statName,
+    SUM(count) AS count,
+    ROUND(AVG(timeSum), 2) AS timeAvg,
+    ROUND(AVG(distSum), 2) AS distAvg
+  FROM view_stat_daily
+  WHERE statId in (207, 2715)
+  GROUP BY rentDate, statId, statName
+  ORDER BY statId, rentDate
+""").show(1000)
 
 spark.sql("""
    SELECT CASE WHEN dayofweek(rentDate) = 1 THEN 'weekend'
@@ -101,3 +126,5 @@ spark.sql("""
     GROUP BY 1, statId, statName
     ORDER BY useCount DESC
 """).show(100)
+
+

@@ -1,5 +1,6 @@
 data
 .metadata
+.metal
 metastore
 metastore_db
 spark-warehouse
